@@ -2,7 +2,8 @@ import unittest
 
 import os
 
-from deps import main
+from deps import main, Dep
+from deps.decoders import DepsDecoder
 
 
 def _fixture_path_by_file_name(f_name):
@@ -13,10 +14,27 @@ def _fixture_path_by_file_name(f_name):
     )
 
 
+class StubDecoder(DepsDecoder):
+
+    def __init__(self, deps):
+        self.deps = deps
+
+    def decode(self):
+        return self.deps
+
+
 class ServiceTestCase(unittest.TestCase):
     def test_parse_file_build_tree(self):
         with open(_fixture_path_by_file_name('parse_file_build_tree.oracle.tar.gz'), 'rb') as f:
             self.assertEqual(
-                main(),
+                main(
+                    decoder=StubDecoder(
+                        deps=[
+                            Dep(name='package-1', version=None),
+                            Dep(name='package-2-cli', version='1.0.0'),
+                            Dep(name='another-package', version='>=0.9.7'),
+                        ]
+                    )
+                ),
                 f.read()
             )
