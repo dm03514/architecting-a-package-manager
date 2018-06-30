@@ -1,4 +1,4 @@
 
 
-def from_file_path(path):
+def main():
     return ''
