@@ -46,12 +46,28 @@ class ServiceTestCase(unittest.TestCase):
         )
 
         deps_repo = StubDepsRepo(dep_versions={
-            'package-2-cli': [
-                Dep(name='package-2-deps-1-pkg', version=None),
-                Dep(name='package-2-deps-2-pkg', version=None)
+            'another-package': [
+                Dep('another-package', version=None),
+            ],
+            'package-1': [
+                Dep('package-1', version=None),
             ],
             'package-2-deps-1-pkg': [
-                Dep(name='recursive-deps', version=None),
+                Dep('package-2-deps-1-pkg', version=None),
+            ],
+            'package-2-deps-2-pkg': [
+                Dep('package-2-deps-2-pkg', version=None),
+            ],
+            'package-2-cli': [
+                Dep(name='package-2-cli', version=None, deps=[
+                    Dep(name='package-2-deps-1-pkg', version=None),
+                    Dep(name='package-2-deps-2-pkg', version=None)
+                ])
+            ],
+            'package-2-deps-1-pkg': [
+                Dep(name='package-2-deps-1-pkg', version=None, deps=[
+                    Dep(name='recursive-deps', version=None),
+                ])
             ]
         })
 

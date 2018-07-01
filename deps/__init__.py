@@ -1,7 +1,12 @@
+from deps.trees.dep_tree import DepTree
 
 
 def main(decoder, deps_repo):
-    return ''
+
+    return DepTree(
+        decoder.decode(),
+        deps_repo,
+    )
 
 
 class Dep:
@@ -10,3 +15,9 @@ class Dep:
         self.name = name
         self.version = version
         self.deps = deps
+
+    def add_dependency(self, dep):
+        self.deps.append(dep)
+
+    def add_dependencies(self, deps):
+        self.deps.extend(deps)
