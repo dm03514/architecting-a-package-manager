@@ -18,4 +18,3 @@ class LineParserTestCase(unittest.TestCase):
     @unittest.skip('TODO')
     def test_parse_lessthanequal_version(self):
         self.fail()
-
