@@ -25,7 +25,8 @@ class StubDecoder(DepsDecoder):
 
 class ServiceTestCase(unittest.TestCase):
     def test_parse_file_build_tree(self):
-        with open(_fixture_path_by_file_name('parse_file_build_tree.oracle.tar.gz'), 'rb') as f:
+        file_name = 'parse_file_build_tree.oracle.tar.gz'
+        with open(_fixture_path_by_file_name(file_name), 'rb') as f:
             self.assertEqual(
                 main(
                     decoder=StubDecoder(
