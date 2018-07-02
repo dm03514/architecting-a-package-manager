@@ -7,6 +7,7 @@ import sys
 
 import copy
 
+from depmgmtsystem.repos import packages
 from depmgmtsystem.repos.deps import Repo
 from depmgmtsystem import main
 from depmgmtsystem.dependencies import Dep
@@ -49,6 +50,15 @@ class StubDepsRepo(Repo):
 
     def deps(self, package_name):
         return copy.deepcopy(self.dep_version.get(package_name, []))
+
+
+class StubPackageRepo(packages.Repo):
+
+    def download(self, name, version):
+        return open(
+            _fixture_path_by_file_name('stub-package.tar.gz'),
+            'rb'
+        ).read()
 
 
 class ServiceTestCase(unittest.TestCase):
@@ -102,6 +112,7 @@ class ServiceTestCase(unittest.TestCase):
                     decoder=stub_decoder,
                     deps_repo=deps_repo,
                     dep_tree_class=DepTree,
+                    package_repo=StubPackageRepo(),
                 ),
                 f.read()
             )
