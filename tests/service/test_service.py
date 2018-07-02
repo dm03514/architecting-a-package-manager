@@ -1,10 +1,27 @@
+import logging
 import unittest
 
 import os
 
-import deps.repos.deps
-from deps import main, Dep
-from deps.decoders import DepsDecoder
+import sys
+
+import copy
+
+from depmgmtsystem.repos.deps import Repo
+from depmgmtsystem import main, Dep
+from depmgmtsystem.decoders import DepsDecoder
+from depmgmtsystem.trees.dep_tree import DepTree
+
+
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+root.addHandler(ch)
 
 
 def _fixture_path_by_file_name(f_name):
@@ -24,13 +41,13 @@ class StubDecoder(DepsDecoder):
         return self.deps
 
 
-class StubDepsRepo(deps.repos.deps.Repo):
+class StubDepsRepo(Repo):
 
-    def __init__(self, dep_versions={}):
+    def __init__(self, dep_versions):
         self.dep_version = dep_versions
 
     def deps(self, package_name):
-        return self.dep_version.get(package_name, [])
+        return copy.deepcopy(self.dep_version.get(package_name, []))
 
 
 class ServiceTestCase(unittest.TestCase):
@@ -40,35 +57,42 @@ class ServiceTestCase(unittest.TestCase):
         stub_decoder = StubDecoder(
             deps=[
                 Dep(name='package-1', version=None),
-                Dep(name='package-2-cli', version='1.0.0'),
+                Dep(name='package-2-cli', version='==1.0.0'),
                 Dep(name='another-package', version='>=0.9.7'),
             ]
         )
 
         deps_repo = StubDepsRepo(dep_versions={
             'another-package': [
-                Dep('another-package', version=None),
+                Dep('another-package', version='0.9.7'),
             ],
             'package-1': [
-                Dep('package-1', version=None),
+                Dep('package-1', version='0.0.1'),
             ],
             'package-2-deps-1-pkg': [
-                Dep('package-2-deps-1-pkg', version=None),
+                Dep('package-2-deps-1-pkg', version='0.0.1'),
             ],
             'package-2-deps-2-pkg': [
-                Dep('package-2-deps-2-pkg', version=None),
+                Dep('package-2-deps-2-pkg', version='0.0.1'),
             ],
             'package-2-cli': [
-                Dep(name='package-2-cli', version=None, deps=[
-                    Dep(name='package-2-deps-1-pkg', version=None),
-                    Dep(name='package-2-deps-2-pkg', version=None)
+                Dep(name='package-2-cli', version='1.0.0', deps=[
+                    Dep(name='package-2-deps-1-pkg', version='0.0.1'),
+                    Dep(name='package-2-deps-2-pkg', version='0.0.1')
                 ])
             ],
             'package-2-deps-1-pkg': [
-                Dep(name='package-2-deps-1-pkg', version=None, deps=[
-                    Dep(name='recursive-deps', version=None),
-                ])
-            ]
+                Dep(
+                    name='package-2-depmgmtsystem-1-pkg',
+                    version='0.0.1',
+                    deps=[
+                        Dep(name='recursive-deps', version='0.0.1'),
+                    ]
+                )
+            ],
+            'recursive-deps': [
+                Dep('recursive-deps', version='0.0.1'),
+            ],
         })
 
         with open(_fixture_path_by_file_name(file_name), 'rb') as f:
@@ -76,6 +100,7 @@ class ServiceTestCase(unittest.TestCase):
                 main(
                     decoder=stub_decoder,
                     deps_repo=deps_repo,
+                    dep_tree_class=DepTree,
                 ),
                 f.read()
             )

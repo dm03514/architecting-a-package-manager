@@ -1,14 +1,18 @@
 import logging
 
-from deps import Dep
+from depmgmtsystem import Dep
 
 logger = logging.getLogger(__name__)
+
+
+class DependencyVersionConstraintError(Exception):
+    pass
 
 
 class DepTree:
     """
     Creates a dependency hierarchy from a list of dependencies.
-    Builds Depdency tree from deps repo provided.
+    Builds Depdency tree from depmgmtsystem repo provided.
     """
     def __init__(self, deps_list, repo):
         self.deps_list = deps_list
@@ -31,9 +35,20 @@ class DepTree:
 
         while stack:
             current = stack.pop()
-            logger.debug('fetching_dependencies: {}'.format(current))
-            deps_list = self.repo.deps()
-            current.add_dependencies(deps_list)
-            stack.extend(deps_list)
 
+            logger.debug('current_stack: {}'.format(stack))
+            logger.debug('fetching_dependencies: {}'.format(current))
+
+            valid_version = current.highest_valid_version(
+                self.repo.deps(current.name)
+            )
+
+            if not valid_version:
+                raise DependencyVersionConstraintError
+
+            current.add_dependencies(valid_version.deps)
+
+            stack.extend(valid_version.deps)
+
+        logger.debug(root)
         return root
