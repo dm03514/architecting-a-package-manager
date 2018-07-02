@@ -1,6 +1,6 @@
 import logging
 
-from depmgmtsystem import Dep
+from depmgmtsystem.dependencies import Dep
 
 logger = logging.getLogger(__name__)
 

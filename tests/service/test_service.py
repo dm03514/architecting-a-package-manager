@@ -8,7 +8,8 @@ import sys
 import copy
 
 from depmgmtsystem.repos.deps import Repo
-from depmgmtsystem import main, Dep
+from depmgmtsystem import main
+from depmgmtsystem.dependencies import Dep
 from depmgmtsystem.decoders import DepsDecoder
 from depmgmtsystem.trees.dep_tree import DepTree
 
