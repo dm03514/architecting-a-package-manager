@@ -1,4 +1,4 @@
-from deps.decoders.parsers import parse_dependency_str
+from depmgmtsystem.decoders.parsers import parse_dependency_str
 from . import DepsDecoder
 
 
