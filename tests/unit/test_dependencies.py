@@ -23,6 +23,10 @@ class DepTestCase(unittest.TestCase):
         self.fail()
 
     @unittest.skip('TODO')
+    def test_add_dependency_parent_refrence(self):
+        self.fail()
+
+    @unittest.skip('TODO')
     def test_add_multiple_dependencies(self):
         self.fail()
 
@@ -40,4 +44,12 @@ class DepTestCase(unittest.TestCase):
 
     @unittest.skip('TODO')
     def test_is_fulfilled_by_detected(self):
+        self.fail()
+
+    @unittest.skip('TODO')
+    def test_path_no_parent(self):
+        self.fail()
+
+    @unittest.skip('TODO')
+    def test_path_multiple_parents(self):
         self.fail()

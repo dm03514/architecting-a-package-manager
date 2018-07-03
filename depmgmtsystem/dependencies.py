@@ -21,12 +21,14 @@ def _match_expr(v):
 
 class Dep:
 
-    def __init__(self, name, version, deps=None):
+    def __init__(self, name, version, parent=None, deps=None):
         self.name = name
         self.version = version
         self.deps = deps if deps is not None else []
+        self.parent = parent
 
     def add_dependency(self, dep):
+        dep.parent = self
         self.deps.append(dep)
 
     def add_dependencies(self, deps):
@@ -36,7 +38,8 @@ class Dep:
         :param deps:
         :return:
         """
-        self.deps.extend(deps)
+        for dep in deps:
+            self.add_dependency(dep)
 
     def highest_valid_version(self, versions):
         for v in versions:
@@ -60,6 +63,15 @@ class Dep:
             available_version,
             _match_expr(self.version),
         )
+
+    def path(self):
+        p = [self.name]
+        parent = self.parent
+        while parent:
+            p.insert(0, 'deps')
+            p.insert(0, parent.name)
+            parent = parent.parent
+        return p
 
     def __str__(self):
         return '{} {} {}'.format(self.name, self.version, self.deps)
