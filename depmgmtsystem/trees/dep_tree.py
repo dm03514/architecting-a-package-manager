@@ -28,7 +28,8 @@ class DepTree:
         :return:
         """
         stack = []
-        root = Dep(name='root', version=None, deps=self.deps_list)
+        root = Dep(name='', version=None)
+        root.add_dependencies(self.deps_list)
 
         logger.debug('seeding root dependencies: {}'.format(self.deps_list))
         stack.extend(self.deps_list)
@@ -45,6 +46,10 @@ class DepTree:
 
             if not valid_version:
                 raise DependencyVersionConstraintError
+
+            # make sure to pin the current with the actual version
+            # available from the repo
+            current.version = valid_version.version
 
             current.add_dependencies(valid_version.deps)
 

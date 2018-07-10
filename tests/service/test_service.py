@@ -6,14 +6,14 @@ import os
 import sys
 
 import copy
+import uuid
 
 from depmgmtsystem.repos import packages
 from depmgmtsystem.repos.deps import Repo
-from depmgmtsystem import main
 from depmgmtsystem.dependencies import Dep
 from depmgmtsystem.decoders import DepsDecoder
 from depmgmtsystem.trees.dep_tree import DepTree
-
+from depmgmtsystem.trees.pkg_tree import FileSystemPackageTree
 
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
@@ -108,11 +108,14 @@ class ServiceTestCase(unittest.TestCase):
 
         with open(_fixture_path_by_file_name(file_name), 'rb') as f:
             self.assertEqual(
-                main(
-                    decoder=stub_decoder,
-                    deps_repo=deps_repo,
-                    dep_tree_class=DepTree,
-                    package_repo=StubPackageRepo(),
-                ),
+                FileSystemPackageTree(
+                    dep_tree=DepTree(
+                        stub_decoder.decode(),
+                        deps_repo,
+                    ).tree(),
+                    root_dir_path=['/', 'tmp', str(uuid.uuid1())],
+                    pkg_repo=StubPackageRepo(),
+                ).tree(),
+
                 f.read()
             )
