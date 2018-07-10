@@ -1,3 +1,4 @@
+import filecmp
 import logging
 import unittest
 
@@ -63,7 +64,6 @@ class StubPackageRepo(packages.Repo):
 
 class ServiceTestCase(unittest.TestCase):
     def test_parse_file_build_tree(self):
-        file_name = 'parse_file_build_tree.oracle.tar.gz'
 
         stub_decoder = StubDecoder(
             deps=[
@@ -106,16 +106,24 @@ class ServiceTestCase(unittest.TestCase):
             ],
         })
 
-        with open(_fixture_path_by_file_name(file_name), 'rb') as f:
-            self.assertEqual(
-                FileSystemPackageTree(
-                    dep_tree=DepTree(
-                        stub_decoder.decode(),
-                        deps_repo,
-                    ).tree(),
-                    root_dir_path=['/', 'tmp', str(uuid.uuid1())],
-                    pkg_repo=StubPackageRepo(),
-                ).tree(),
+        fs_path = ['/', 'tmp', str(uuid.uuid1())]
 
-                f.read()
+        FileSystemPackageTree(
+            dep_tree=DepTree(
+                stub_decoder.decode(),
+                deps_repo,
+            ).tree(),
+            root_dir_path=fs_path,
+            pkg_repo=StubPackageRepo(),
+        ).tree()
+
+        comp = filecmp.dircmp(
+            os.path.join(*(fs_path + ['deps'])),
+            os.path.join(
+                os.path.dirname(os.path.realpath(__file__)),
+                'fixtures',
+                'parse_file_build_tree_oracle',
+                'deps',
             )
+        )
+        self.assertEqual(comp.diff_files, [])
